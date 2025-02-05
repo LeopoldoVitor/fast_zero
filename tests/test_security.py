@@ -1,12 +1,20 @@
-from security import create_access_token, SECRET_KEY, ALGORITHM
-from jwt import decode
+from security import create_access_token
 
 
-def test_jwt():
-    data = {'sub': 'test@test.com'}
+def test_get_current_user_no_token(client):
+    response = client.delete(
+        '/users/1',
+        headers={'Authorization': 'Bearer'},
+    )
+    assert response.json() == {'detail': 'Could not validate credentials'}
+
+
+def test_get_current_user_invalid(client):
+    data = {'sub': 'no@email.com'}
     token = create_access_token(data)
+    response = client.delete(
+        '/users/1',
+        headers={'Authorization': f'Bearer {token}'},
+    )
 
-    decoded = decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-
-    assert decoded['sub'] == data['sub']
-    assert decoded['exp']
+    assert response.json() == {'detail': 'Could not validate credentials'}

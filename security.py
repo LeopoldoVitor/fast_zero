@@ -10,10 +10,11 @@ from database import get_session
 from fastapi import Depends, HTTPException
 from http import HTTPStatus
 from models import User
+from settings import Settings
 
 
 pwd_context = PasswordHash.recommended()
-oauth2_schema = OAuth2PasswordBearer(tokenUrl='token')
+oauth2_schema = OAuth2PasswordBearer(tokenUrl='/auth/token')
 
 
 def get_password_hash(password):
@@ -24,18 +25,15 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 
-SECRET_KEY = 'your-secret-key'
-ALGORITHM = 'HS256'
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-
 def create_access_token(data: dict):
     to_encode = data.copy()
     expire = datetime.now(pytz.utc) + timedelta(
-        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+        minutes=Settings().ACCESS_TOKEN_EXPIRE_MINUTES
     )
     to_encode.update({'exp': expire})
-    encoded_jwt = encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = encode(
+        to_encode, Settings().SECRET_KEY, algorithm=Settings().ALGORITHM
+    )
     return encoded_jwt
 
 
@@ -43,16 +41,18 @@ def get_current_user(
     session: Session = Depends(get_session),
     token: str = Depends(oauth2_schema),
 ):
-    '''
+    """
     Pega o usuario atual a partir do token gerado no login
-    '''
+    """
     credential_exception = HTTPException(
         status_code=HTTPStatus.UNAUTHORIZED,
         detail='Could not validate credentials',
         headers={'WWW-Authenticate': 'Bearer'},
     )
     try:
-        payload = decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = decode(
+            token, Settings().SECRET_KEY, algorithms=[Settings().ALGORITHM]
+        )
         email = payload['sub']
         if not email:
             raise credential_exception
