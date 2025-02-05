@@ -8,7 +8,11 @@ extend-exclude = ['migrations']
 
 [tool.ruff.lint]
 preview = true
-select = ['F', 'E', 'W', 'PL', 'PT']
+select = ['F', 'E', 'W', 'PL']
+
+[tool.ruff.format]
+preview = true
+quote-style = 'single'
 
 [tool.taskipy.tasks]
 run = 'fastapi dev app.py'
