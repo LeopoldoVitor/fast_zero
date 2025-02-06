@@ -10,3 +10,5 @@ pwdlib[argon2]
 python-multipart
 pyjwt==2.10.1
 pytz
+factory-boy==3.3.3
+freezegun==1.5.1

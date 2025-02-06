@@ -7,6 +7,16 @@ from database import get_session
 from security import get_password_hash
 from app import app
 import pytest
+import factory
+
+
+class UserFactory(factory.Factory):
+    class Meta:
+        model = User
+
+    username = factory.Sequence(lambda n: f'test{n}')
+    email = factory.LazyAttribute(lambda obj: f'{obj.username}@email.com')
+    password = factory.LazyAttribute(lambda obj: f'{obj.username}+senha')
 
 
 @pytest.fixture
@@ -50,6 +60,20 @@ def user(session):
 
     user.clean_password = pwd
 
+    return user
+
+
+@pytest.fixture
+def other_user(session):
+    pwd = 'testtest'
+    user = User(
+        username='test2',
+        email='test2@test.com',
+        password=get_password_hash(pwd),
+    )
+    session.add(user)
+    session.commit()
+    session.refresh(user)
     return user
 
 

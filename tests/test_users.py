@@ -68,7 +68,9 @@ def test_update_user_deve_atualizar_o_usuario_1(client, user, token):
     }
 
 
-def test_update_user_deve_retornar_username_alredy_exists(client, user, token):
+def test_update_user_deve_retornar_username_alredy_exists(
+    client, user, other_user, token
+):
     response = client.put(
         f'users/{user.id}',
         json={
@@ -81,7 +83,9 @@ def test_update_user_deve_retornar_username_alredy_exists(client, user, token):
     assert response.json() == {'detail': 'Username alredy exists'}
 
 
-def test_update_user_deve_retornar_email_alredy_exists(client, user, token):
+def test_update_user_deve_retornar_email_alredy_exists(
+    client, user, other_user, token
+):
     response = client.put(
         f'users/{user.id}',
         json={
@@ -91,12 +95,13 @@ def test_update_user_deve_retornar_email_alredy_exists(client, user, token):
         },
         headers={'Authorization': f'Bearer {token}'},
     )
+
     assert response.json() == {'detail': 'Email alredy exists'}
 
 
-def test_user_permissions(client, user, token):
+def test_user_permissions(client, user, other_user, token):
     response = client.delete(
-        f'users/{user.id + 1}',
+        f'users/{other_user.id}',
         headers={'Authorization': f'Bearer {token}'},
     )
     assert response.status_code == HTTPStatus.FORBIDDEN

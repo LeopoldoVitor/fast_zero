@@ -1,6 +1,6 @@
 from pwdlib import PasswordHash
 from jwt import encode, decode
-from jwt.exceptions import PyJWTError
+from jwt.exceptions import DecodeError, ExpiredSignatureError
 from datetime import datetime, timedelta
 import pytz
 from fastapi.security import OAuth2PasswordBearer
@@ -56,7 +56,9 @@ def get_current_user(
         email = payload['sub']
         if not email:
             raise credential_exception
-    except PyJWTError:
+    except DecodeError:
+        raise credential_exception
+    except ExpiredSignatureError:
         raise credential_exception
 
     db_user = session.scalar(select(User).where(User.email == email))
