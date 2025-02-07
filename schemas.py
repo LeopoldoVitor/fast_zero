@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict
+from models import TodoState
 
 
 class Message(BaseModel):
@@ -29,3 +30,17 @@ class UserList(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class TodoSchema(BaseModel):
+    title: str
+    description: str
+    state: TodoState
+
+
+class TodoPublic(TodoSchema):
+    id: int
+
+
+class TodoList(BaseModel):
+    todos: list[TodoPublic]
